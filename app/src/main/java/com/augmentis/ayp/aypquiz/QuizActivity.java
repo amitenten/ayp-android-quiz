@@ -1,5 +1,7 @@
 package com.augmentis.ayp.aypquiz;
 
+import android.app.Activity;
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,10 +12,12 @@ import android.widget.Toast;
 
 public class QuizActivity extends AppCompatActivity {
 
-    Button trueButton;
-    Button falseButton;
-    Button nextButton;
-    Button previousButton;
+    private static final int REQUEST_CHEAT = 137;
+    private Button trueButton;
+    private Button falseButton;
+    private Button nextButton;
+    private Button previousButton;
+    private Button cheatButton;
 
     TextView questionText;
 
@@ -28,6 +32,7 @@ public class QuizActivity extends AppCompatActivity {
 
     private static final String TAG = "AYPQUIZ";
     private static final String INDEX = "INDEX";
+    private boolean isCheater;
 
     @Override
     protected void onPause() {
@@ -71,11 +76,12 @@ public class QuizActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "On create");
         setContentView(R.layout.activity_quiz);
-
+        resetCheater();
         trueButton = (Button) findViewById(R.id.true_button);
         falseButton = (Button) findViewById(R.id.false_button);
         nextButton = (Button) findViewById(R.id.next_button);
         previousButton = (Button) findViewById(R.id.previous_button);
+        cheatButton = (Button) findViewById(R.id.cheat_button);
         questionText = (TextView) findViewById(R.id.text_question);
 
         if (savedInstanceState != null){
@@ -102,44 +108,75 @@ public class QuizActivity extends AppCompatActivity {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                resetCheater();
 //                if (currentIndex >= questions.length){
 //                    currentIndex=0;
 //                }
 //                currentIndex = (currentIndex + 1) % questions.length;
                 currentIndex++;
                 if (currentIndex == questions.length) currentIndex = 0;
+
                 updateQuestion();
             }
         });
         previousButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                resetCheater();
                 if (currentIndex == 0) currentIndex = 4;
                 currentIndex--;
+
                 updateQuestion();
+            }
+        });
+
+        cheatButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //
+                Intent intent = new Intent(QuizActivity.this, CheatActivity.class);
+                intent.putExtra("ANSWER",questions[currentIndex].getAnswer());
+
+                startActivityForResult(intent, REQUEST_CHEAT);
             }
         });
     }
 
-    public void updateQuestion(){
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent dataIntent) {
+      if (resultCode != Activity.RESULT_OK){
+            return;
+        }
+        if (requestCode == REQUEST_CHEAT){
+            if (dataIntent == null){
+                return;
+            }
+            isCheater = CheatActivity.wasCheated(dataIntent);
+        }
+    }
 
+    private void resetCheater(){
+        isCheater = false;
+    }
+
+    public void updateQuestion(){
         questionText.setText(questions[currentIndex].getQuestionId());
     }
 
     public void checkAnswer(boolean answer) {
 
         boolean correctAnswer = questions[currentIndex].getAnswer();
-        int result = (answer == correctAnswer) ? R.string.correct_text : R.string.incorrect_text;
-        Toast.makeText(QuizActivity.this, result, Toast.LENGTH_SHORT).show();
-
-        /*if (answer == correctAnswer) {
-            //click True
-            result = R.string.correct_text;
-            Toast.makeText(QuizActivity.this, result, Toast.LENGTH_SHORT).show();
-        } else {
-            //click False
-            result = R.string.incorrect_text;
-            Toast.makeText(QuizActivity.this, result, Toast.LENGTH_SHORT).show();
-        }*/
+        int result;
+        if (isCheater){
+            result = R.string.cheater_text;
+        }else {
+            if (answer == correctAnswer) {
+                //click True
+                result = R.string.correct_text;
+            } else {
+                //click False
+                result = R.string.incorrect_text;
+            }
+        }Toast.makeText(QuizActivity.this, result, Toast.LENGTH_SHORT).show();
     }
 }
