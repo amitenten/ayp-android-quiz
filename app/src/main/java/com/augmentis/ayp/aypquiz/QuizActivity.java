@@ -2,6 +2,7 @@ package com.augmentis.ayp.aypquiz;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -25,9 +26,50 @@ public class QuizActivity extends AppCompatActivity {
 
     int currentIndex;
 
+    private static final String TAG = "AYPQUIZ";
+    private static final String INDEX = "INDEX";
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        Log.d(TAG, "On pause");
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.d(TAG, "On resume");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        Log.d(TAG, "On start");
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d(TAG, "On stop");
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "On destroy");
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.d(TAG, "State is saving");
+        outState.putInt(INDEX,currentIndex);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "On create");
         setContentView(R.layout.activity_quiz);
 
         trueButton = (Button) findViewById(R.id.true_button);
@@ -36,7 +78,12 @@ public class QuizActivity extends AppCompatActivity {
         previousButton = (Button) findViewById(R.id.previous_button);
         questionText = (TextView) findViewById(R.id.text_question);
 
+        if (savedInstanceState != null){
+            currentIndex = savedInstanceState.getInt(INDEX, 0);
+        }else {
         currentIndex = 0;
+        }
+
         updateQuestion();
 
         trueButton.setOnClickListener(new View.OnClickListener() {
