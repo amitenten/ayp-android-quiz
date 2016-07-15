@@ -25,7 +25,8 @@ public class QuizActivity extends AppCompatActivity {
             new Question(R.string.question_1_nile, true),
             new Question(R.string.question_2_rawin, true),
             new Question(R.string.question_3_math, false),
-            new Question(R.string.question_4_mars, false)
+            new Question(R.string.question_4_mars, false),
+            new Question(R.string.question_5_cat, false)
     };
 
     int currentIndex;
@@ -33,6 +34,7 @@ public class QuizActivity extends AppCompatActivity {
     private static final String TAG = "AYPQUIZ";
     private static final String INDEX = "INDEX";
     private boolean isCheater;
+    private static final String SAVECHEATER = "SAVECHEATER";
 
     @Override
     protected void onPause() {
@@ -69,6 +71,7 @@ public class QuizActivity extends AppCompatActivity {
         super.onSaveInstanceState(outState);
         Log.d(TAG, "State is saving");
         outState.putInt(INDEX,currentIndex);
+        outState.putBoolean(SAVECHEATER,isCheater);
     }
 
     @Override
@@ -85,6 +88,7 @@ public class QuizActivity extends AppCompatActivity {
         questionText = (TextView) findViewById(R.id.text_question);
 
         if (savedInstanceState != null){
+            isCheater = savedInstanceState.getBoolean(SAVECHEATER);
             currentIndex = savedInstanceState.getInt(INDEX, 0);
         }else {
         currentIndex = 0;
@@ -123,7 +127,7 @@ public class QuizActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 resetCheater();
-                if (currentIndex == 0) currentIndex = 4;
+                if (currentIndex == 0) currentIndex = questions.length;
                 currentIndex--;
 
                 updateQuestion();

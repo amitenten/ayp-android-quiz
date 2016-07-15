@@ -10,6 +10,7 @@
     <string name="question_2_rawin">Rawin is happy ?</string>
     <string name="question_3_math">2+2 = 5 ?</string> <!--false-->
     <string name="question_4_mars">Mars doesn\'t have moon ?</string>
+    <string name="question_5_cat">Cat can fly ?</string>
     <string name="previous_button">Previous</string>
     <string name="cheat_botton">Cheat!!</string>
     <string name="confirm_button">Are You really want to know the answer?</string>
