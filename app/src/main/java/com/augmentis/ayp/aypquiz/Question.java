@@ -6,7 +6,19 @@ package com.augmentis.ayp.aypquiz;
 public class Question {
     private int questionId;
     private boolean answer;
-    private boolean cheated;
+    private boolean Cheated;
+
+    public Question() {}
+
+    public boolean getCheated() {
+        return Cheated;
+    }
+
+    public void setCheated(boolean cheated) {
+        Cheated = cheated;
+        cheated = true;
+        return;
+    }
 
     public int getQuestionId() {
         return questionId;
@@ -16,22 +28,15 @@ public class Question {
         this.questionId = questionId;
     }
 
-    public boolean isCheated() {
-        return cheated;
-    }
-
-    public void setCheated(boolean cheated) {
-        this.cheated = cheated;
-    }
-
     public void setAnswer(boolean answer) {
         this.answer = answer;
     }
 
-    public Question(int questionId, boolean answer) {
+
+    public Question(int questionId, boolean answer , boolean Cheated) {
         this.questionId = questionId;
         this.answer = answer;
-        this.cheated = false;
+        this.Cheated = Cheated;
     }
 
     public boolean getAnswer() {

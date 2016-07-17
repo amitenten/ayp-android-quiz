@@ -22,19 +22,20 @@ public class QuizActivity extends AppCompatActivity {
     TextView questionText;
 
     Question[] questions = new Question[]{
-            new Question(R.string.question_1_nile, true),
-            new Question(R.string.question_2_rawin, true),
-            new Question(R.string.question_3_math, false),
-            new Question(R.string.question_4_mars, false),
-            new Question(R.string.question_5_cat, false)
+            new Question(R.string.question_1_nile, true, false),
+            new Question(R.string.question_2_rawin, true, false),
+            new Question(R.string.question_3_math, false, false),
+            new Question(R.string.question_4_mars, false, false),
+            new Question(R.string.question_5_cat, false, false)
     };
 
     int currentIndex;
 
     private static final String TAG = "AYPQUIZ";
     private static final String INDEX = "INDEX";
-    private boolean isCheater;
     private static final String SAVECHEATER = "SAVECHEATER";
+    private boolean isCheater;
+    private boolean addCheater;
 
     @Override
     protected void onPause() {
@@ -112,7 +113,6 @@ public class QuizActivity extends AppCompatActivity {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                resetCheater();
 //                if (currentIndex >= questions.length){
 //                    currentIndex=0;
 //                }
@@ -120,16 +120,17 @@ public class QuizActivity extends AppCompatActivity {
                 currentIndex++;
                 if (currentIndex == questions.length) currentIndex = 0;
 
+                resetCheater();
                 updateQuestion();
             }
         });
         previousButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                resetCheater();
                 if (currentIndex == 0) currentIndex = questions.length;
                 currentIndex--;
 
+                resetCheater();
                 updateQuestion();
             }
         });
@@ -142,6 +143,7 @@ public class QuizActivity extends AppCompatActivity {
                 intent.putExtra("ANSWER",questions[currentIndex].getAnswer());
 
                 startActivityForResult(intent, REQUEST_CHEAT);
+                setCheater();
             }
         });
     }
@@ -163,6 +165,10 @@ public class QuizActivity extends AppCompatActivity {
         isCheater = false;
     }
 
+    private void setCheater () {
+        questions[currentIndex].getCheated();
+    }
+
     public void updateQuestion(){
         questionText.setText(questions[currentIndex].getQuestionId());
     }
@@ -170,6 +176,7 @@ public class QuizActivity extends AppCompatActivity {
     public void checkAnswer(boolean answer) {
 
         boolean correctAnswer = questions[currentIndex].getAnswer();
+
         int result;
         if (isCheater){
             result = R.string.cheater_text;

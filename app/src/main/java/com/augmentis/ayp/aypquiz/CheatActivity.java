@@ -42,6 +42,7 @@ public class CheatActivity extends AppCompatActivity {
                 }
 
                 isCheated = true;
+
                 returnResult();
             }
         });
