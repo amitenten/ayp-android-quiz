@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 public class QuizActivity extends AppCompatActivity {
 
-    private static final int REQUEST_CHEAT = 137;
+    private static final int REQUEST_CHEATED = 137;
     private Button trueButton;
     private Button falseButton;
     private Button nextButton;
@@ -21,21 +21,21 @@ public class QuizActivity extends AppCompatActivity {
 
     TextView questionText;
 
-    Question[] questions = new Question[]{
-            new Question(R.string.question_1_nile, true, false),
-            new Question(R.string.question_2_rawin, true, false),
-            new Question(R.string.question_3_math, false, false),
-            new Question(R.string.question_4_mars, false, false),
-            new Question(R.string.question_5_cat, false, false)
+    static Question[] questions = new Question[]{
+            new Question(R.string.question_1_nile, true),
+            new Question(R.string.question_2_rawin, true),
+            new Question(R.string.question_3_math, false),
+            new Question(R.string.question_4_mars, false),
+            new Question(R.string.question_5_cat, false)
     };
 
     int currentIndex;
 
     private static final String TAG = "AYPQUIZ";
     private static final String INDEX = "INDEX";
+    private static final String CHEAT = "CHEAT";
     private static final String SAVECHEATER = "SAVECHEATER";
     private boolean isCheater;
-    private boolean addCheater;
 
     @Override
     protected void onPause() {
@@ -68,11 +68,11 @@ public class QuizActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        Log.d(TAG, "State is saving");
-        outState.putInt(INDEX,currentIndex);
-        outState.putBoolean(SAVECHEATER,isCheater);
+    protected void onSaveInstanceState(Bundle savedInstanceState) {
+        super.onSaveInstanceState(savedInstanceState);
+        Log.d(TAG,"State is saving");
+        savedInstanceState.putInt(INDEX, currentIndex);
+        savedInstanceState.putBoolean(CHEAT,isCheater);
     }
 
     @Override
@@ -80,7 +80,6 @@ public class QuizActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "On create");
         setContentView(R.layout.activity_quiz);
-        resetCheater();
         trueButton = (Button) findViewById(R.id.true_button);
         falseButton = (Button) findViewById(R.id.false_button);
         nextButton = (Button) findViewById(R.id.next_button);
@@ -88,13 +87,13 @@ public class QuizActivity extends AppCompatActivity {
         cheatButton = (Button) findViewById(R.id.cheat_button);
         questionText = (TextView) findViewById(R.id.text_question);
 
-        if (savedInstanceState != null){
+        if (savedInstanceState != null) {
             isCheater = savedInstanceState.getBoolean(SAVECHEATER);
             currentIndex = savedInstanceState.getInt(INDEX, 0);
-        }else {
-        currentIndex = 0;
+        } else {
+            resetCheater();
+            currentIndex = 0;
         }
-
         updateQuestion();
 
         trueButton.setOnClickListener(new View.OnClickListener() {
@@ -117,6 +116,8 @@ public class QuizActivity extends AppCompatActivity {
 //                    currentIndex=0;
 //                }
 //                currentIndex = (currentIndex + 1) % questions.length;
+
+
                 currentIndex++;
                 if (currentIndex == questions.length) currentIndex = 0;
 
@@ -127,6 +128,7 @@ public class QuizActivity extends AppCompatActivity {
         previousButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 if (currentIndex == 0) currentIndex = questions.length;
                 currentIndex--;
 
@@ -137,39 +139,41 @@ public class QuizActivity extends AppCompatActivity {
 
         cheatButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
                 //
-                Intent intent = new Intent(QuizActivity.this, CheatActivity.class);
-                intent.putExtra("ANSWER",questions[currentIndex].getAnswer());
-
-                startActivityForResult(intent, REQUEST_CHEAT);
-                setCheater();
+//                Intent intent = new Intent(QuizActivity.this, CheatActivity.class);
+//                intent.putExtra("NAME",questions[currentIndex].getAnswer());
+                Intent intent = CheatActivity.createIntent(QuizActivity.this,getCurrentAnswer());
+                startActivityForResult(intent, REQUEST_CHEATED);
             }
         });
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent dataIntent) {
-      if (resultCode != Activity.RESULT_OK){
+        if(resultCode != Activity.RESULT_OK){
             return;
         }
-        if (requestCode == REQUEST_CHEAT){
-            if (dataIntent == null){
+        if(requestCode==REQUEST_CHEATED){
+            if(dataIntent == null){
                 return;
             }
-            isCheater = CheatActivity.wasCheated(dataIntent);
+//            isCheater = dataIntent.getExtras().getBoolean("CHEATED");
+            isCheater = CheatActivity.wasCeated(dataIntent);
+            questions[currentIndex].setCheated(isCheater);
         }
     }
 
-    private void resetCheater(){
+    private void resetCheater() {
         isCheater = false;
     }
 
-    private void setCheater () {
-        questions[currentIndex].getCheated();
+    public boolean getCurrentAnswer() {
+//        return currentAnswer;
+        return  questions[currentIndex].getAnswer();
     }
 
-    public void updateQuestion(){
+    public void updateQuestion() {
         questionText.setText(questions[currentIndex].getQuestionId());
     }
 
@@ -178,9 +182,9 @@ public class QuizActivity extends AppCompatActivity {
         boolean correctAnswer = questions[currentIndex].getAnswer();
 
         int result;
-        if (isCheater){
+        if (questions[currentIndex].isCheated()) {
             result = R.string.cheater_text;
-        }else {
+        } else {
             if (answer == correctAnswer) {
                 //click True
                 result = R.string.correct_text;
@@ -188,6 +192,7 @@ public class QuizActivity extends AppCompatActivity {
                 //click False
                 result = R.string.incorrect_text;
             }
-        }Toast.makeText(QuizActivity.this, result, Toast.LENGTH_SHORT).show();
+        }
+        Toast.makeText(QuizActivity.this, result, Toast.LENGTH_SHORT).show();
     }
 }
